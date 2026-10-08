@@ -82,7 +82,7 @@ Read current body: `gh issue view <url> --json body -q .body`. Append missing se
 - Estimate suggestion with justification
 - Open questions for the author (if any)
 
-**Post-success transitions** (on agent success): add label `action:develop` via `gh issue edit <url> --add-label "action:develop"`. If a GitHub Project board is configured for the repo, move the item to the "planning" status (see **Common post-flight**).
+**Post-success transitions** (on agent success): add label `action:develop` via `gh issue edit <url> --add-label "action:develop"`. If a GitHub Project board is configured for the repo, move the item to the `planned` status (see **Common post-flight**).
 
 ## Action: validate
 
@@ -154,7 +154,7 @@ Apply: `gh issue edit <url> --body "<updated body>"`.
 
 **Summary comment** — `gh issue comment <url> --body "<summary>"` describing sections added/updated and any risks or open questions.
 
-**Post-success transitions**: swap label `action:plan` → `action:develop`. Move project status to ready/todo (see **Common post-flight**).
+**Post-success transitions**: swap label `action:plan` → `action:develop`. Move project status to `planned` (see **Common post-flight**).
 
 ## Action: develop
 
@@ -562,9 +562,11 @@ If swapping and the remove-label is missing, the add still happens — log a war
 
 If the repo uses a GitHub Project board, also move the project item's `Status` field after a successful action:
 
-- After `prepare` → `Planning` (fallback names: `Plan`, `In planning`)
-- After `plan` → `Ready` / `Todo`
-- After `develop` → `In review` / `Review`
+- After `prepare` → `planned`
+- After `plan` → `planned`
+- After `develop` → `in-review`
+
+These are the canonical columns (`backlog`, `planned`, `in-progress`, `in-review`, `done`, optional `in-client-review`) from weyucou/sops `procedures/issue-lifecycle.md`; match case-insensitively.
 
 Use `gh project item-edit` or the GraphQL API. If the project membership cannot be detected from a single `gh` call, log a warning and skip — never raise.
 
