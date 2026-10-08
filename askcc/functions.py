@@ -814,7 +814,7 @@ def _add_issue_label(gh: str, repo_nwo: str, issue_number: int, label: str) -> N
 def transition_issue_to_planning(github_issue_url: str) -> None:
     """Transition issue to planning state after successful preparation.
 
-    Adds action:develop label and moves to planning column.
+    Adds action:develop label and moves to the planned column.
     All failures are logged as warnings, never raised.
     """
     gh = _require_gh_cli()
@@ -834,7 +834,7 @@ def transition_issue_to_planning(github_issue_url: str) -> None:
 def transition_issue_to_development(github_issue_url: str) -> None:
     """Transition issue labels and project state after successful planning.
 
-    Swaps action:plan -> action:develop and moves project status to ready/todo.
+    Swaps action:plan -> action:develop and keeps/moves project status to planned.
     If action:plan is not present, action:develop is still added (the remove
     step warns but does not raise).
     All failures are logged as warnings, never raised.

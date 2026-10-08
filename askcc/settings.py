@@ -23,14 +23,18 @@ PLAN_LABEL = "action:plan"
 DEVELOP_LABEL = "action:develop"
 REVIEW_LABEL = "action:review"
 
-# Prepare transition
-PLANNING_STATUS_OPTIONS: tuple[str, ...] = ("planning",)
+# Project board Status columns — the canonical set is backlog, planned, in-progress,
+# in-review, done (+ optional in-client-review); see weyucou/sops
+# procedures/issue-lifecycle.md § Project Columns.
 
-# Plan transition (post-plan, ready for development)
-READY_STATUS_OPTIONS: tuple[str, ...] = ("ready", "todo")
+# Prepare transition (prepared issue is scheduled: backlog -> planned)
+PLANNING_STATUS_OPTIONS: tuple[str, ...] = ("planned",)
 
-# Project field transition
-REVIEW_STATUS_OPTIONS: tuple[str, ...] = ("in-internal-review", "in-review")
+# Plan transition (a planned issue stays in planned, ready for development)
+READY_STATUS_OPTIONS: tuple[str, ...] = ("planned",)
+
+# Develop transition (PR opened -> internal review)
+REVIEW_STATUS_OPTIONS: tuple[str, ...] = ("in-review",)
 
 # -- Claude thinking/reasoning controls --
 # NOTE: VALID_EFFORT_LEVELS and SupportedLanguage live here (not definitions.py) to avoid

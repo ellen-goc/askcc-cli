@@ -61,6 +61,9 @@ from askcc.settings import (
     CLAUDE_ENV_MAX_THINKING_TOKENS,
     DEFAULT_EFFORT_LEVEL,
     DEFAULT_MAX_THINKING_TOKENS,
+    PLANNING_STATUS_OPTIONS,
+    READY_STATUS_OPTIONS,
+    REVIEW_STATUS_OPTIONS,
     USER_CONFIG_PATH,
     VALID_EFFORT_LEVELS,
     SupportedLanguage,
@@ -1134,8 +1137,8 @@ class TestDevelopSkipValidation:
 
 class TestFindOptionId:
     def test_finds_matching_option(self):
-        options = [{"id": "opt1", "name": "Todo"}, {"id": "opt2", "name": "in-review"}]
-        assert _find_option_id(options, ("in-internal-review", "in-review")) == "opt2"
+        options = [{"id": "opt1", "name": "backlog"}, {"id": "opt2", "name": "in-review"}]
+        assert _find_option_id(options, ("in-review",)) == "opt2"
 
     def test_case_insensitive(self):
         options = [{"id": "opt1", "name": "In-Review"}]
@@ -1143,10 +1146,25 @@ class TestFindOptionId:
 
     def test_returns_first_match(self):
         options = [
-            {"id": "opt1", "name": "in-internal-review"},
+            {"id": "opt1", "name": "planned"},
             {"id": "opt2", "name": "in-review"},
         ]
-        assert _find_option_id(options, ("in-internal-review", "in-review")) == "opt1"
+        assert _find_option_id(options, ("in-review", "planned")) == "opt1"
+
+
+class TestCanonicalStatusColumns:
+    """Transitions must target columns a board actually has (monkut/askcc-cli#123)."""
+
+    CANONICAL = frozenset({"backlog", "planned", "in-progress", "in-review", "in-client-review", "done"})
+
+    def test_every_transition_targets_a_canonical_column(self):
+        for options in (PLANNING_STATUS_OPTIONS, READY_STATUS_OPTIONS, REVIEW_STATUS_OPTIONS):
+            assert set(options) <= self.CANONICAL, options
+
+    def test_transition_targets(self):
+        assert PLANNING_STATUS_OPTIONS == ("planned",)
+        assert READY_STATUS_OPTIONS == ("planned",)
+        assert REVIEW_STATUS_OPTIONS == ("in-review",)
 
     def test_no_match_returns_none(self):
         options = [{"id": "opt1", "name": "Todo"}, {"id": "opt2", "name": "Done"}]
@@ -1543,7 +1561,7 @@ class TestTransitionIssueToPlanningIntegration:
             "monkut",
             "askcc-cli",
             42,
-            status_options=("planning",),
+            status_options=("planned",),
         )
 
 
@@ -1570,7 +1588,7 @@ class TestTransitionIssueToDevelopmentIntegration:
             "monkut",
             "askcc-cli",
             42,
-            status_options=("ready", "todo"),
+            status_options=("planned",),
         )
 
     def test_handles_no_project_cleanly(self):
@@ -1624,7 +1642,7 @@ class TestPlanCommand:
             "monkut",
             "askcc-cli",
             1,
-            status_options=("ready", "todo"),
+            status_options=("planned",),
         )
 
     def test_plan_failure_skips_transition(self):
